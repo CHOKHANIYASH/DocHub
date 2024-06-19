@@ -31,4 +31,16 @@ router.get(
     res.status(status).send(response);
   })
 );
+router.post(
+  "/:docId/json",
+  handleAsyncError(async (req, res) => {
+    const docId = req.params.docId;
+    const json = req.body;
+    const { status, response } = await DocumentControllers.updateDocumentJson({
+      docId,
+      json,
+    });
+    res.status(status).send(response);
+  })
+);
 module.exports = router;
