@@ -1,0 +1,12 @@
+services:
+  dochub:
+    volumes:
+      - ./server:/app
+      - dochub-node-modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+# if node_modules not updating error arise it  may be due to volumes
+
+volumes:
+  dochub-node-modules:
