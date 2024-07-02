@@ -1,3 +1,5 @@
+import AmplifyConfig from "./Amplify";
+import { ToastContainer } from "react-toastify";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -15,6 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.className} bg-cyan-400`}>
+        <AmplifyConfig />
         <Navbar />
         {children}
       </body>
