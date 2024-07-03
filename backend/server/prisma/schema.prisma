@@ -67,6 +67,7 @@ model Docs{
   document Json?
   author    User     @relation(fields: [authorId], references: [id])
   authorId String
+  name    String    @default("Untitled")
   comments Comment[]
   access AccessList?
   imagesUrl ImageUrl[]
