@@ -10,7 +10,7 @@ import Loader from "react-js-loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { toast } from "react-toastify";
-import { signIn, signInWithRedirect } from "@aws-amplify/auth";
+import { signIn, signInWithRedirect, getCurrentUser } from "@aws-amplify/auth";
 import "aws-amplify/auth/enable-oauth-listener";
 export default function Login() {
   const router = useRouter();
@@ -33,10 +33,10 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await signIn({ username, password });
-      console.log(response);
+      const user = await getCurrentUser();
       setLoading(false);
       toast.success("Login successful", { toastId: "uniqueToastLogin" });
-      router.push("/");
+      router.push(`/dashboard/${user.userId}`);
     } catch (err) {
       console.log(err);
       toast.error(err.message, { toastId: "uniqueToastLogin" });

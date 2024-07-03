@@ -103,7 +103,7 @@ export default function Signup() {
         username,
         userId,
       });
-      router.push("/");
+      router.push(`/dashboard/${userId}`);
       toast.success("User created successfully", {
         toastId: "uniqueToastSignup",
       });
