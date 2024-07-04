@@ -6,10 +6,20 @@ import { cn } from "@/utils/cn";
 import Link from "next/link";
 import { ToastContainer } from "react-toastify";
 import { useAppSelector } from "@/redux/hooks/index";
-
+import { fetchAuthSession } from "aws-amplify/auth";
 function Navbar({ className }) {
   const [active, setActive] = useState(null);
   const isAuthenticated = useAppSelector((state) => state.isAuthenticated);
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    fetchAuthSession()
+      .then((session) => {
+        setUserId(session.userSub);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
   return (
     <>
       <div className={cn("inset-x-0  mx-auto max-md:m-4  ", className)}>
@@ -21,7 +31,7 @@ function Navbar({ className }) {
               item="Home"
             ></MenuItem>
           </Link>
-          <Link href={"/dashboard/c1431d3a-2051-70f5-ae0d-afb4b87fb800"}>
+          <Link href={`/dashboard/${userId}`}>
             <MenuItem
               setActive={setActive}
               active={active}
