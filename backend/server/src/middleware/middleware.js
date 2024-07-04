@@ -1,4 +1,5 @@
 const multer = require("multer");
+const jwt = require("jsonwebtoken");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const isAdmin = (req, res, next) => {
@@ -20,5 +21,19 @@ class AppError extends Error {
 const handleAsyncError = (fn) => (req, res, next) => {
   fn(req, res, next).catch((err) => next(err));
 };
+const isValidUser = handleAsyncError(async (req, res, next) => {
+  const { userId } = req.params.userId || req.body.userId;
+  const access_token = req.headers.access_token;
+  if (!access_token) {
+    throw new AppError("Unauthorized", 401);
+  }
+  const decoded = jwt.decode(access_token, { complete: true });
+  const { sub } = decoded.payload;
+  const USERID = sub;
+  if (USERID !== userId) {
+    throw new AppError("Unauthorized", 401);
+  }
+  next();
+});
 
-module.exports = { AppError, handleAsyncError, upload, isAdmin };
+module.exports = { AppError, handleAsyncError, upload, isAdmin, isValidUser };
