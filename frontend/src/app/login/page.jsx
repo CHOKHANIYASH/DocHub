@@ -12,8 +12,12 @@ import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { toast } from "react-toastify";
 import { signIn, signInWithRedirect, getCurrentUser } from "@aws-amplify/auth";
 import "aws-amplify/auth/enable-oauth-listener";
+import { setIsAuthenticated } from "@/redux/slices/isAuthenticatedSlice";
+import { useAppDispatch } from "@/redux/hooks/index";
+
 export default function Login() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,6 +39,7 @@ export default function Login() {
       const response = await signIn({ username, password });
       const user = await getCurrentUser();
       setLoading(false);
+      dispatch(setIsAuthenticated(true));
       toast.success("Login successful", { toastId: "uniqueToastLogin" });
       router.push(`/dashboard/${user.userId}`);
     } catch (err) {

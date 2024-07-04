@@ -11,15 +11,13 @@ import { useState } from "react";
 import axios from "axios";
 import Loader from "react-js-loader";
 import { v4 as uuidv4 } from "uuid";
-// import { useAppSelector, useAppDispatch } from "@/redux/hooks/index";
-// import { setAccessToken } from "@/redux/slices/accessTokenSlice";
-// import { setIsAuthenticated } from "@/redux/slices/isAuthenticatedSlice";
-// import { setUserId } from "@/redux/slices/userIdSlice";
-// import { setRefreshToken } from "@/redux/slices/refreshTokenSlice";
 import { signUp, confirmSignUp, signInWithRedirect } from "aws-amplify/auth";
+import { setIsAuthenticated } from "@/redux/slices/isAuthenticatedSlice";
+import { useAppDispatch } from "@/redux/hooks/index";
 
 export default function Signup() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -103,6 +101,7 @@ export default function Signup() {
         username,
         userId,
       });
+      dispatch(setIsAuthenticated(true));
       router.push(`/dashboard/${userId}`);
       toast.success("User created successfully", {
         toastId: "uniqueToastSignup",
