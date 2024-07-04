@@ -17,7 +17,7 @@ export default function SignOut() {
       toast.error(err.message, { toastId: "uniqueToastSignout" });
       console.log(err);
     }
-    router.push("/login");
+    router.push("/signin");
   };
   handleSignOut();
   return null;

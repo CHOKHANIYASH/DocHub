@@ -27,7 +27,6 @@ export default function Home() {
             },
           })
           .then((response) => {
-            console.log(response);
             setDocuments(response.data.data);
           });
       })
@@ -57,9 +56,8 @@ export default function Home() {
   };
   return (
     <>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
       <button
-        className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200"
+        className="px-4 py-2 rounded-md border mt-2 ml-2 border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200"
         onClick={handleAddDocument}
       >
         Add Document
