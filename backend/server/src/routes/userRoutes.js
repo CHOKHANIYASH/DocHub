@@ -19,16 +19,18 @@ router.get("/allusers", async (req, res) => {
 router.post(
   "/signup",
   handleAsyncError(async (req, res) => {
-    const { username, email, firstName, lastName, avatar } = req.body;
-    const userId = uuid();
-    const { response, status } = await UserControllers.signup(
+    const { username, email, firstName, lastName, avatar, userId } = req.body;
+    if (!username) throw new AppError("Username is required", 400);
+    if (!email) throw new AppError("Email is required", 400);
+    if (!userId) throw new AppError("userId is required", 400);
+    const { response, status } = await UserControllers.signup({
       userId,
       username,
       email,
       firstName,
       lastName,
-      avatar
-    );
+      avatar,
+    });
     res.status(status).send(response);
   })
 );

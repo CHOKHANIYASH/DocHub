@@ -1,7 +1,14 @@
 const { PrismaClient } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
 const prisma = new PrismaClient();
-const signup = async (userId, username, email, firstName, lastName, avatar) => {
+const signup = async ({
+  userId,
+  username,
+  email,
+  firstName,
+  lastName,
+  avatar,
+}) => {
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ id: userId }, { username }, { email }],
