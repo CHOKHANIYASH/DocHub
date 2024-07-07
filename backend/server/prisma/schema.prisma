@@ -33,19 +33,18 @@ datasource db {
 //   userId Int     @unique
 // }
 
-enum AccessType {
-  Public 
-  Private
-  Restricted
-}
-model AccessList{
-  id String @id
-  type AccessType
-  doc Docs @relation(fields: [docId], references: [id])
-  docId String @unique
-  // Allowed User[]
-  // Restricted User[]
-}
+// enum AccessType {
+//   Public 
+//   Private
+//   Restricted
+// }
+// model AccessList{
+//   id String @id
+//   type AccessType
+//   doc Docs @relation(fields: [docId], references: [id])
+//   docId String @unique
+//   // Allowed User[]
+// }
 
 model Comment{
   id String @id 
@@ -69,10 +68,29 @@ model Docs{
   authorId String
   name    String    @default("Untitled")
   comments Comment[]
-  access AccessList?
+  accessType AccessType @default(private)
+  allowedUsers AllowedUsers[]
   imagesUrl ImageUrl[]
 }
-
+// accessType publicRead,publicWrite,publicAll
+enum AccessType {
+  public
+  publicViewOnly
+  private
+  restricted
+}
+enum Permission {
+  view
+  fullAccess 
+}
+model AllowedUsers{
+  id String @id @default(uuid())
+  permission Permission
+  email String
+  docId String
+  doc Docs @relation(fields:[docId],references:[id])
+  @@unique([docId,email])
+}
 model User {
   id      String      @id 
   email   String?   @unique
