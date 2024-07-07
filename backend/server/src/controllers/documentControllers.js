@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
 const { response } = require("express");
+const { v4: uuid } = require("uuid");
 const prisma = new PrismaClient();
 const create = async ({ authorId, docId }) => {
   const newDocument = await prisma.docs
@@ -49,6 +50,9 @@ const getDoument = async ({ docId }) => {
     where: {
       id: docId,
     },
+    include: {
+      allowedUsers: true,
+    },
   });
   if (!document) throw new AppError("Document Not Found", 404);
   return {
@@ -58,28 +62,6 @@ const getDoument = async ({ docId }) => {
       message: "Document found successfully",
       data: document,
     },
-  };
-};
-const updateDocumentJson = async ({ docId, json }) => {
-  const document = await prisma.docs
-    .update({
-      where: {
-        id: docId,
-      },
-      data: {
-        document: json,
-      },
-    })
-    .catch((err) => {
-      console.log(err.code);
-      if (err.code === "P2025")
-        // P2025 Prisma error code
-        throw new AppError("Document not found", 404);
-      else throw err;
-    });
-  return {
-    status: 200,
-    response: { success: true, message: "Json saved successfully", data: {} },
   };
 };
 const updateDocument = async ({ docId, data }) => {
@@ -106,10 +88,53 @@ const updateDocument = async ({ docId, data }) => {
     },
   };
 };
+const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
+  const response = await prisma.docs.update({
+    where: {
+      id: docId,
+    },
+    data: {
+      accessType,
+    },
+  });
+  await prisma.allowedUsers.deleteMany({});
+  console.log("update response", response);
+  const type = accessType.toLowerCase();
+  if (type !== "restricted") {
+    return {
+      status: 200,
+      response: {
+        success: true,
+        message: "AccessList updated Successfully",
+        data: {},
+      },
+    };
+  }
+  await Promise.all(
+    allowedUsers.map(async (user) => {
+      await prisma.allowedUsers.create({
+        data: {
+          docId,
+          email: user.email,
+          permission: user.permission,
+        },
+      });
+    })
+  );
+
+  return {
+    status: 200,
+    response: {
+      success: true,
+      message: "AccessList updated Successfully",
+      data: {},
+    },
+  };
+};
 module.exports = {
   create,
   getAllDocuments,
   getDoument,
   updateDocument,
-  updateDocumentJson,
+  updateAccessList,
 };
