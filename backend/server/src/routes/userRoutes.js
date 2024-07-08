@@ -40,13 +40,24 @@ router.post(
 );
 router.post(
   "/update/:userId",
-  // isValidUser,
+  isValidUser,
   handleAsyncError(async (req, res) => {
     const userId = req.params.userId;
     const user = req.body.user;
     const { response, status } = await UserControllers.updateUser({
       userId,
       user,
+    });
+    res.status(status).send(response);
+  })
+);
+router.post(
+  "/delete/:userId",
+  isValidUser,
+  handleAsyncError(async (req, res) => {
+    const userId = req.params.userId;
+    const { response, status } = await UserControllers.deleteUser({
+      userId,
     });
     res.status(status).send(response);
   })

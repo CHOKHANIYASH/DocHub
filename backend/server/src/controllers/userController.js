@@ -55,7 +55,7 @@ const updateUser = async ({ userId, user }) => {
     .catch((err) => {
       if (err.code === "P2025") {
         // P2025 Prisma error code
-        throw new AppError("User not found", 400);
+        throw new AppError("User not found", 404);
       } else throw new AppError("Invalid input field", 400);
     });
   return {
@@ -68,4 +68,27 @@ const updateUser = async ({ userId, user }) => {
   };
 };
 
-module.exports = { signup, allUsers, updateUser };
+const deleteUser = async ({ userId }) => {
+  const deletedUser = await prisma.user
+    .delete({
+      where: {
+        id: userId,
+      },
+    })
+    .catch((err) => {
+      if (err.code === "P2025") {
+        // P2025 Prisma error code
+        throw new AppError("User not found", 404);
+      } else throw err;
+    });
+  return {
+    status: 200,
+    response: {
+      success: true,
+      message: "User deleted successfully",
+      data: {},
+    },
+  };
+};
+
+module.exports = { signup, allUsers, updateUser, deleteUser };
