@@ -12,39 +12,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // url      = "postgresql://yash:yash@172.31.0.3:5432/dochub?schema=public"
 }
 
-// model Post {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   title     String   @db.VarChar(255)
-//   content   String?
-//   published Boolean  @default(false)
-//   author    User     @relation(fields: [authorId], references: [id])
-//   authorId  Int
-// }
-
-// model Profile {
-//   id     Int     @id @default(autoincrement())
-//   bio    String?
-//   user   User    @relation(fields: [userId], references: [id])
-//   userId Int     @unique
-// }
-
-// enum AccessType {
-//   Public 
-//   Private
-//   Restricted
-// }
-// model AccessList{
-//   id String @id
-//   type AccessType
-//   doc Docs @relation(fields: [docId], references: [id])
-//   docId String @unique
-//   // Allowed User[]
-// }
 
 model Comment{
   id String @id 
@@ -72,7 +41,6 @@ model Docs{
   allowedUsers AllowedUsers[]
   imagesUrl ImageUrl[]
 }
-// accessType publicRead,publicWrite,publicAll
 enum AccessType {
   public
   publicViewOnly
