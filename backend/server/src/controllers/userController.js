@@ -1,5 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
+const { Prisma } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
+const { response } = require("express");
 const prisma = new PrismaClient();
 const signup = async ({
   userId,
@@ -42,4 +44,28 @@ const allUsers = async () => {
   };
 };
 
-module.exports = { signup, allUsers };
+const updateUser = async ({ userId, user }) => {
+  const updatedUser = await prisma.user
+    .update({
+      where: {
+        id: userId,
+      },
+      data: user,
+    })
+    .catch((err) => {
+      if (err.code === "P2025") {
+        // P2025 Prisma error code
+        throw new AppError("User not found", 400);
+      } else throw new AppError("Invalid input field", 400);
+    });
+  return {
+    status: 200,
+    response: {
+      success: true,
+      message: "User Updated successfully",
+      data: updatedUser,
+    },
+  };
+};
+
+module.exports = { signup, allUsers, updateUser };

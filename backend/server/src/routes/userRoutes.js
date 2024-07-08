@@ -1,5 +1,9 @@
 const router = require("express").Router();
-const { handleAsyncError, AppError } = require("../middleware/middleware");
+const {
+  handleAsyncError,
+  AppError,
+  isValidUser,
+} = require("../middleware/middleware");
 const UserControllers = require("../controllers/userController");
 const { v4: uuid } = require("uuid");
 
@@ -30,6 +34,19 @@ router.post(
       firstName,
       lastName,
       avatar,
+    });
+    res.status(status).send(response);
+  })
+);
+router.post(
+  "/update/:userId",
+  // isValidUser,
+  handleAsyncError(async (req, res) => {
+    const userId = req.params.userId;
+    const user = req.body.user;
+    const { response, status } = await UserControllers.updateUser({
+      userId,
+      user,
     });
     res.status(status).send(response);
   })
