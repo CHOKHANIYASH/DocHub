@@ -99,4 +99,16 @@ router.post(
     res.status(status).send(response);
   })
 );
+router.post(
+  "/:docId/delete",
+  isValidUser,
+  handleAsyncError(async (req, res) => {
+    const docId = req.params.docId;
+    const { status, response } = await DocumentControllers.deleteDocument({
+      docId,
+    });
+    res.status(status).send(response);
+  })
+);
+
 module.exports = router;

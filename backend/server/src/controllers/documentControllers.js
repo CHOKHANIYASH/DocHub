@@ -26,7 +26,7 @@ const getAllDocuments = async ({ authorId }) => {
     status: 200,
     response: {
       success: true,
-      message: "Users documents",
+      message: "User documents",
       data: documents,
     },
   };
@@ -200,6 +200,47 @@ const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
     },
   };
 };
+
+const deleteDocument = async ({ docId }) => {
+  const deleteAllowedUsers = prisma.allowedUsers.deleteMany({
+    where: {
+      docId: docId,
+    },
+  });
+  const deleteComments = prisma.comment.deleteMany({
+    where: {
+      docId: docId,
+    },
+  });
+  const deleteImages = prisma.imageUrl.deleteMany({
+    where: {
+      docId: docId,
+    },
+  });
+  const deleteDocument = prisma.docs.delete({
+    where: {
+      id: docId,
+    },
+  });
+  const transaction = await prisma
+    .$transaction([
+      deleteAllowedUsers,
+      deleteComments,
+      deleteImages,
+      deleteDocument,
+    ])
+    .catch((err) => {
+      throw new AppError("Document not found", 404);
+    });
+  return {
+    status: 200,
+    response: {
+      success: true,
+      message: "Document deleted Successfully",
+      data: {},
+    },
+  };
+};
 module.exports = {
   create,
   isAuthorizedToView,
@@ -208,4 +249,5 @@ module.exports = {
   getDoument,
   updateDocument,
   updateAccessList,
+  deleteDocument,
 };
