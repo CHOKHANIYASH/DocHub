@@ -25,10 +25,8 @@ router.post(
   isValidUser,
   handleAsyncError(async (req, res) => {
     const userId = req.params.userId;
-    const docId = uuid();
     const { status, response } = await DocumentControllers.create({
       authorId: userId,
-      docId,
     });
     res.status(status).send(response);
   })
@@ -37,9 +35,17 @@ router.get(
   "/:docId",
   handleAsyncError(async (req, res) => {
     const docId = req.params.docId;
-    // const allowedUser = await DocumentControllers.allowedUser({ userId });
-    // if (!allowedUser)
-    //   throw new AppError("You are not allowed to change this document", 403);
+    const userId = req.query.userId;
+    const email = req.query.email;
+    const accessToken = req.headers.access_token;
+    const authorized = await DocumentControllers.isAuthorizedToView({
+      docId,
+      userId,
+      email,
+      accessToken,
+    });
+    if (!authorized)
+      throw new AppError("You are not allowed to view this document", 403);
     const { status, response } = await DocumentControllers.getDoument({
       docId,
     });
@@ -53,16 +59,16 @@ router.post(
     const data = req.body.data;
     const userId = req.body.userId;
     const email = req.body.email;
-    // const authorized = await DocumentControllers.authlorized({
-    //   docId,
-    //   userId,
-    //   email,
-    // });
-    // if (!authorized)
-    //   throw new AppError(
-    //     "You have no permissions to make changes to this document",
-    //     401
-    //   );
+    const authorized = await DocumentControllers.authlorized({
+      docId,
+      userId,
+      email,
+    });
+    if (!authorized)
+      throw new AppError(
+        "You have no permissions to make changes to this document",
+        401
+      );
     const { status, response } = await DocumentControllers.updateDocument({
       docId,
       data,

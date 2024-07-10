@@ -1,29 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
-const { response } = require("express");
 const { v4: uuid } = require("uuid");
+const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
-const create = async ({ authorId, docId }) => {
-  const newDocument = await prisma.docs
-    .create({
-      data: {
-        authorId,
-        id: docId,
-      },
-    })
-    .catch((err) => {
-      throw new AppError("User not found", 400);
-    });
-  return {
-    status: 201,
-    response: {
-      success: true,
-      message: "Document created Successfully",
-      data: newDocument,
-    },
-  };
-};
+
 const getAllDocuments = async ({ authorId }) => {
+  // if user not present it sends an empty array, it does throw error for user not present
   const response = await prisma.docs
     .findMany({
       where: {
@@ -34,7 +16,11 @@ const getAllDocuments = async ({ authorId }) => {
       throw new AppError("User not found", 404);
     });
   const documents = response.map((document) => {
-    return { id: document.id, name: document.name };
+    return {
+      id: document.id,
+      name: document.name,
+      createdAt: document.createdAt,
+    };
   });
   return {
     status: 200,
@@ -64,6 +50,58 @@ const getDoument = async ({ docId }) => {
     },
   };
 };
+const create = async ({ authorId }) => {
+  const newDocument = await prisma.docs
+    .create({
+      data: {
+        authorId,
+      },
+    })
+    .catch((err) => {
+      console.log(err);
+      throw new AppError("User not found", 400);
+    });
+  return {
+    status: 201,
+    response: {
+      success: true,
+      message: "Document created Successfully",
+      data: newDocument,
+    },
+  };
+};
+const isAuthorizedToView = async ({ docId, userId, email, accessToken }) => {
+  const document = await prisma.docs.findUnique({
+    where: {
+      id: docId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+      accessType: true,
+      allowedUsers: true,
+    },
+  });
+  if (
+    document.accessType === "public" ||
+    document.accessType === "publicViewOnly"
+  )
+    return true;
+  const decoded = jwt.decode(accessToken, { complete: true });
+  if (!decoded) return false;
+  const { sub } = decoded.payload;
+  const USERID = sub;
+  if (USERID !== userId) {
+    return false;
+  }
+  if (userId === document.authorId) return true;
+  console.log(document.allowedUsers);
+  for (user of document.allowedUsers) {
+    if (user.email === email) return true;
+  }
+  return false;
+};
+
 const updateDocument = async ({ docId, data }) => {
   const document = await prisma.docs
     .update({
@@ -110,15 +148,17 @@ const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
       },
     };
   }
-  await Promise.all(
+  const newAllowedUsers = await Promise.all(
     allowedUsers.map(async (user) => {
-      await prisma.allowedUsers.create({
-        data: {
-          docId,
-          email: user.email,
-          permission: user.permission,
-        },
-      });
+      return await prisma.allowedUsers
+        .create({
+          data: {
+            docId,
+            email: user.email,
+            permission: user.permission,
+          },
+        })
+        .catch((err) => {}); // catching the unique username constraint
     })
   );
 
@@ -127,12 +167,13 @@ const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
     response: {
       success: true,
       message: "AccessList updated Successfully",
-      data: {},
+      data: newAllowedUsers,
     },
   };
 };
 module.exports = {
   create,
+  isAuthorizedToView,
   getAllDocuments,
   getDoument,
   updateDocument,
