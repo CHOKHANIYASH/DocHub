@@ -95,20 +95,49 @@ const isAuthorizedToView = async ({ docId, userId, email, accessToken }) => {
     return false;
   }
   if (userId === document.authorId) return true;
-  console.log(document.allowedUsers);
   for (user of document.allowedUsers) {
     if (user.email === email) return true;
   }
   return false;
 };
 
-const updateDocument = async ({ docId, data }) => {
-  const document = await prisma.docs
+const isAuthorizedToUpdate = async ({ docId, userId, email, accessToken }) => {
+  const document = await prisma.docs.findUnique({
+    where: {
+      id: docId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+      accessType: true,
+      allowedUsers: true,
+    },
+  });
+  if (document.accessType === "public") return true;
+  const decoded = jwt.decode(accessToken, { complete: true });
+  if (!decoded) return false;
+  const { sub } = decoded.payload;
+  const USERID = sub;
+  if (USERID !== userId) {
+    return false;
+  }
+  if (userId === document.authorId) return true;
+  for (user of document.allowedUsers) {
+    if (user.email === email) {
+      if (user.permission === "fullAccess") return true;
+      else return false;
+    }
+  }
+  return false;
+};
+
+const updateDocument = async ({ docId, document }) => {
+  const updatedDocument = await prisma.docs
     .update({
       where: {
         id: docId,
       },
-      data,
+      data: document,
     })
     .catch((err) => {
       console.log(err.code);
@@ -122,7 +151,7 @@ const updateDocument = async ({ docId, data }) => {
     response: {
       success: true,
       message: "Document Updated Successfully",
-      data: {},
+      data: updatedDocument,
     },
   };
 };
@@ -174,6 +203,7 @@ const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
 module.exports = {
   create,
   isAuthorizedToView,
+  isAuthorizedToUpdate,
   getAllDocuments,
   getDoument,
   updateDocument,

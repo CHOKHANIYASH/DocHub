@@ -56,13 +56,21 @@ router.post(
   "/:docId/update",
   handleAsyncError(async (req, res) => {
     const docId = req.params.docId;
-    const data = req.body.data;
+    const document = req.body.document;
     const userId = req.body.userId;
     const email = req.body.email;
-    const authorized = await DocumentControllers.authlorized({
+    const accessToken = req.headers.access_token;
+    if (document.accessType || document.allowedUsers) {
+      throw new AppError(
+        "You cannot update the accessList of the document in this route",
+        400
+      );
+    }
+    const authorized = await DocumentControllers.isAuthorizedToUpdate({
       docId,
       userId,
       email,
+      accessToken,
     });
     if (!authorized)
       throw new AppError(
@@ -71,7 +79,7 @@ router.post(
       );
     const { status, response } = await DocumentControllers.updateDocument({
       docId,
-      data,
+      document,
     });
     res.status(status).send(response);
   })
