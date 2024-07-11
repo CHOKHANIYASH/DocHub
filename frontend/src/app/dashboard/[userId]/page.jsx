@@ -8,22 +8,25 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CardBody, CardContainer, CardItem } from "../../../components/ui/card";
 import Link from "next/link";
-
-export default function Home() {
+import ProtectedRoute from "../../ProtectedRoute";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+function Dashboard() {
   const router = useRouter();
   const url = process.env.NEXT_PUBLIC_SERVER_URL;
   const [userId, setUserId] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState("");
   const [documents, setDocuments] = useState([]);
   useEffect(() => {
     fetchAuthSession()
       .then((session) => {
         setUserId(session.userSub);
-        setAccessToken(session.accessToken);
+        const accessTokenString = session.tokens.accessToken.toString();
+        setAccessToken(accessTokenString);
         const response = axios
           .get(`${url}/docs/user/${session.userSub}`, {
             headers: {
-              access_token: session.accessToken,
+              access_token: accessTokenString,
             },
           })
           .then((response) => {
@@ -35,21 +38,51 @@ export default function Home() {
       });
   }, []);
   const handleAddDocument = async (e) => {
-    console.log("add document", userId);
     try {
-      const response = await axios.post(`${url}/docs/user/${userId}/create`, {
-        headers: {
-          access_token: accessToken,
-        },
-      });
-      console.log(response);
+      const response = await axios.post(
+        `${url}/docs/user/${userId}/create`,
+        {},
+        {
+          headers: {
+            access_token: accessToken,
+          },
+        }
+      );
       toast.success("Document created Successfully", {
         toastId: "uniqueToastDashboard",
       });
       router.push(`/docs/${response.data.data.id}`);
     } catch (err) {
       console.log("err", err);
-      toast.error(err.response.data.message, {
+      toast.error("Cannot Add Document, please try again later", {
+        toastId: "uniqueToastDashboard",
+      });
+    }
+  };
+  const handleDeleteDocument = async (docId) => {
+    try {
+      const response = await axios
+        .post(
+          `${url}/docs/${docId}/delete`,
+          { userId },
+          {
+            headers: {
+              access_token: accessToken,
+            },
+          }
+        )
+        .then(() => {
+          const newDocuments = documents.filter((document) => {
+            if (document.id !== docId) return document;
+          });
+          setDocuments(newDocuments);
+        });
+      toast.success("Document deleted Successfully", {
+        toastId: "uniqueToastDashboard",
+      });
+    } catch (err) {
+      console.log("err", err);
+      toast.error("Cannot delete Document, please try again later", {
         toastId: "uniqueToastDashboard",
       });
     }
@@ -69,9 +102,19 @@ export default function Home() {
               <CardBody className="bg-gray-50 relative group/card border-black/[0.1]  rounded-xl p-6 border  ">
                 <CardItem
                   translateZ="50"
+                  className="w-full font-bold text-right text-md text-neutral-600"
+                >
+                  <FontAwesomeIcon
+                    icon={faTrashCan}
+                    onClick={() => handleDeleteDocument(item.id)}
+                    className="cursor-pointer"
+                  />
+                </CardItem>
+                <CardItem
+                  translateZ="50"
                   className="text-lg font-bold text-neutral-600"
                 >
-                  {`${item.name}`}
+                  <p>{`${item.name}`}</p>
                 </CardItem>
                 {/* <CardItem translateZ="100" className="mt-4">
                   <Image
@@ -100,3 +143,4 @@ export default function Home() {
     </>
   );
 }
+export default ProtectedRoute(Dashboard);
