@@ -2,7 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 import { useState, useEffect } from "react";
 import { Label } from "../../../../../components/ui/label";
 import { Input, Select } from "../../../../../components/ui/input";
@@ -21,27 +21,71 @@ export default function DocumentDetailsUpdate() {
   const [loading2, setLoading2] = useState(false);
   const url = process.env.NEXT_PUBLIC_SERVER_URL;
   const [userId, setUserId] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState("");
+  const [email, setEmail] = useState("");
   useEffect(() => {
     fetchAuthSession()
       .then((session) => {
-        setUserId(session.userSub);
-        const accessToken = session.tokens.accessToken.toString();
-        setAccessToken(accessToken);
-        const docId = window.location.pathname.split("/")[2];
-        const response = axios
-          .get(`${url}/docs/${docId}`, {
-            headers: {
-              access_token: session.accessToken,
-            },
-          })
-          .then((response) => {
-            console.log(response);
-            setName(response.data.data.name);
-            setAccessType(response.data.data.accessType);
-            if (response.data.data.accessType === "restricted")
-              setAllowedUsers(response.data.data.allowedUsers);
+        let accessTokenString = "";
+        let tempEmail = "";
+        if (session.userSub !== undefined) {
+          setUserId(session.userSub);
+          accessTokenString = session.tokens.accessToken.toString();
+          setAccessToken(accessTokenString);
+          const docId = window.location.pathname.split("/")[2];
+          fetchUserAttributes().then((user) => {
+            tempEmail = user.email;
+            setEmail(user.email);
+            const response = axios
+              .get(`${url}/docs/${docId}`, {
+                headers: {
+                  access_token: accessTokenString,
+                },
+                params: {
+                  userId: session.userSub,
+                  email: tempEmail,
+                },
+              })
+              .then((response) => {
+                setName(response.data.data.name);
+                setAccessType(response.data.data.accessType);
+                if (response.data.data.accessType === "restricted")
+                  setAllowedUsers(response.data.data.allowedUsers);
+              })
+              .catch((err) => {
+                console.log(err);
+                toast.error(
+                  "You are not allowed to view this Document Details",
+                  {
+                    toastId: "uniqueDocumentToast",
+                  }
+                );
+              });
           });
+        } else {
+          const response = axios
+            .get(`${url}/docs/${docId}`, {
+              headers: {
+                access_token: accessTokenString,
+              },
+              params: {
+                userId: session.userSub,
+                email: tempEmail,
+              },
+            })
+            .then((response) => {
+              setName(response.data.data.name);
+              setAccessType(response.data.data.accessType);
+              if (response.data.data.accessType === "restricted")
+                setAllowedUsers(response.data.data.allowedUsers);
+            })
+            .catch((err) => {
+              console.log(err);
+              toast.error("You are not allowed to view this Document Details", {
+                toastId: "uniqueDocumentToast",
+              });
+            });
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -81,7 +125,7 @@ export default function DocumentDetailsUpdate() {
         { headers: { access_token: accessToken } }
       )
       .then((response) => {
-        toast.success("Document Details changed successfully", {
+        toast.success("AccessList updated successfully", {
           toastId: "uniqueToastDocs",
         });
       })
@@ -98,7 +142,7 @@ export default function DocumentDetailsUpdate() {
     axios
       .post(
         `${url}/docs/${docId}/update`,
-        { data: { name }, userId },
+        { document: { name }, userId, email },
         { headers: { access_token: accessToken } }
       )
       .then((response) => {
@@ -172,27 +216,25 @@ export default function DocumentDetailsUpdate() {
 
               {allowedUsers.map((user, i) => {
                 return (
-                  <>
-                    <div key={i} className="grid grid-flow-col">
-                      <p className="px-4 py-2 w-fit bg-gray-200 text-black backdrop-blur-sm border border-black rounded-md hover:shadow-[0px_0px_4px_4px_rgba(0,0,0,0.1)] bg-white/[0.2] text-sm transition duration-200">
-                        {user.email}
+                  <div key={i} className="grid grid-flow-col">
+                    <p className="px-4 py-2 w-fit bg-gray-200 text-black backdrop-blur-sm border border-black rounded-md hover:shadow-[0px_0px_4px_4px_rgba(0,0,0,0.1)] bg-white/[0.2] text-sm transition duration-200">
+                      {user.email}
 
-                        <FontAwesomeIcon
-                          icon={faXmark}
-                          className="ml-2 text-red-500 cursor-pointer"
-                          onClick={() => handleRemoveUser(user)}
-                        />
-                      </p>
-                      <select
-                        value={user.permission}
-                        onChange={(e) => handlePemissionChange(e, user.email)}
-                        className="text-sm transition duration-200 rounded-md outline-none"
-                      >
-                        <option value="view">View only</option>
-                        <option value="fullAccess">Full Access</option>
-                      </select>
-                    </div>
-                  </>
+                      <FontAwesomeIcon
+                        icon={faXmark}
+                        className="ml-2 text-red-500 cursor-pointer"
+                        onClick={() => handleRemoveUser(user)}
+                      />
+                    </p>
+                    <select
+                      value={user.permission}
+                      onChange={(e) => handlePemissionChange(e, user.email)}
+                      className="text-sm transition duration-200 rounded-md outline-none"
+                    >
+                      <option value="view">View only</option>
+                      <option value="fullAccess">Full Access</option>
+                    </select>
+                  </div>
                 );
               })}
             </LabelInputContainer>
