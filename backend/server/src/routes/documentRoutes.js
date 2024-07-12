@@ -12,6 +12,7 @@ router.get("/", (req, res) => {
 });
 router.get(
   "/user/:userId",
+  isValidUser,
   handleAsyncError(async (req, res) => {
     const userId = req.params.userId;
     const { status, response } = await DocumentControllers.getAllDocuments({
@@ -60,11 +61,8 @@ router.post(
     const userId = req.body.userId;
     const email = req.body.email;
     const accessToken = req.headers.access_token;
-    if (document.accessType || document.allowedUsers) {
-      throw new AppError(
-        "You cannot update the accessList of the document in this route",
-        400
-      );
+    if (!document || document.accessType || document.allowedUsers) {
+      throw new AppError("Invalid inputs", 400);
     }
     const authorized = await DocumentControllers.isAuthorizedToUpdate({
       docId,
@@ -91,8 +89,10 @@ router.post(
     const docId = req.params.docId;
     const accessType = req.body.accessType;
     const allowedUsers = req.body.allowedUsers;
+    const userId = req.body.userId;
     const { status, response } = await DocumentControllers.updateAccessList({
       docId,
+      userId,
       accessType,
       allowedUsers,
     });
@@ -104,8 +104,10 @@ router.post(
   isValidUser,
   handleAsyncError(async (req, res) => {
     const docId = req.params.docId;
+    const userId = req.body.userId;
     const { status, response } = await DocumentControllers.deleteDocument({
       docId,
+      userId,
     });
     res.status(status).send(response);
   })

@@ -155,16 +155,34 @@ const updateDocument = async ({ docId, document }) => {
     },
   };
 };
-const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
-  const response = await prisma.docs.update({
+const updateAccessList = async ({
+  docId,
+  userId,
+  accessType,
+  allowedUsers,
+}) => {
+  const response = await prisma.docs.updateMany({
     where: {
       id: docId,
+      authorId: userId, // Ensures that the user is the author
     },
     data: {
       accessType,
     },
   });
-  await prisma.allowedUsers.deleteMany({});
+
+  if (response.count === 0) {
+    throw new AppError(
+      "Document not found or you do not have permission to update it",
+      400
+    );
+  }
+
+  await prisma.allowedUsers.deleteMany({
+    where: {
+      docId,
+    },
+  });
   console.log("update response", response);
   const type = accessType.toLowerCase();
   if (type !== "restricted") {
@@ -201,7 +219,21 @@ const updateAccessList = async ({ docId, accessType, allowedUsers }) => {
   };
 };
 
-const deleteDocument = async ({ docId }) => {
+const deleteDocument = async ({ docId, userId }) => {
+  const response = await prisma.docs.findMany({
+    where: {
+      id: docId,
+      authorId: userId, // Ensures that the user is the author
+    },
+  });
+
+  if (response.count === 0) {
+    throw new AppError(
+      "Document not found or you do not have permission to delete it",
+      400
+    );
+  }
+
   const deleteAllowedUsers = prisma.allowedUsers.deleteMany({
     where: {
       docId: docId,
