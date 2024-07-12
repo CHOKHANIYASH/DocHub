@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePen } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-const Tiptap = ({ userId, accessToken, content, documentName }) => {
+const Tiptap = ({ userId, accessToken, email, content, documentName }) => {
   const editor = useEditor({
     extensions: [StarterKit, Image, Underline],
     content:
@@ -30,19 +30,27 @@ const Tiptap = ({ userId, accessToken, content, documentName }) => {
   return (
     <>
       <div>
-        <Toolbar editor={editor} userId={userId} accessToken={accessToken} />
-        <h1 className="mt-2 text-4xl font-bold text-center text-gray-700">
-          {documentName}
-        </h1>
-        <div className="w-full text-3xl font-bold text-right text-gray-700 mt-[-2rem]">
-          <Link href={`${window.location.href}/details/update`}>
-            <FontAwesomeIcon
-              icon={faFilePen}
-              className="text-gray-700 cursor-pointer hover:text-sky-400"
-              title="Edit Document Details"
-            />
-          </Link>
+        <Toolbar
+          editor={editor}
+          userId={userId}
+          accessToken={accessToken}
+          email={email}
+        />
+        <div>
+          <h1 className="mt-2 text-4xl font-bold text-center text-gray-700">
+            {documentName}
+          </h1>
+          <div className="w-full text-3xl font-bold text-right text-gray-700">
+            <Link href={`${window.location.href}/details/update`}>
+              <FontAwesomeIcon
+                icon={faFilePen}
+                className="text-gray-700 cursor-pointer hover:text-sky-400"
+                title="Edit Document Details"
+              />
+            </Link>
+          </div>
         </div>
+
         <EditorContent
           className="p-10 m-10 font-mono text-xl prose-lg [&_ol]:list-decimal [&_ul]:list-disc text-black bg-white border-2 border-gray-400 rounded-lg shadow-md focus:outline-none"
           editor={editor}

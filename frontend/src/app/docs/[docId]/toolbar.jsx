@@ -19,15 +19,21 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { toast } from "react-toastify";
-const Toolbar = ({ editor, content, userId, accessToken }) => {
+const Toolbar = ({ editor, content, userId, accessToken, email }) => {
   const url = process.env.NEXT_PUBLIC_SERVER_URL;
   const handleSave = () => {
     const docId = window.location.pathname.split("/")[2];
     const json = editor.getJSON();
     axios
       .post(
-        `${url}/docs/${docId}/json`,
-        { json, userId },
+        `${url}/docs/${docId}/update`,
+        {
+          document: {
+            document: json,
+          },
+          userId,
+          email,
+        },
         { headers: { access_token: accessToken } }
       )
       .then((response) => {
@@ -37,7 +43,9 @@ const Toolbar = ({ editor, content, userId, accessToken }) => {
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err.message, { toastId: "uniqueToastDocs" });
+        toast.error(err.response.data.message, {
+          toastId: "uniqueToastDocs",
+        });
       });
   };
   const addImage = () => {
