@@ -1,0 +1,9 @@
+version: "3"
+services:
+  dochub-lambda:
+    image: backend-dochub-lambda
+    build:
+      context: .
+      dockerfile: Dockerfile-lambda
+    ports:
+      - "5000:5000"

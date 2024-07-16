@@ -6,12 +6,13 @@ const { AppError } = require("./middleware/middleware");
 const UserRoutes = require("./routes/userRoutes");
 const ImageRoutes = require("./routes/imageRoutes");
 const DocumentRoutes = require("./routes/documentRoutes");
+const serverless = require("serverless-http");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors({ origin: "*" }));
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the DocHub API ecs version 1.0.0");
+  res.send("Welcome to the DocHub API ecs version 2.0.0 dev mode");
 });
 
 app.get("/health", (req, res) => {
@@ -38,9 +39,10 @@ app.use((err, req, res, next) => {
     data: {},
   });
 });
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.listen(PORT, () => {
+    console.log(`Server is listening at port:${PORT}`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is listening at port:${PORT}`);
-});
-
-// module.exports.handler = serverless(app);
+module.exports.handler = serverless(app);

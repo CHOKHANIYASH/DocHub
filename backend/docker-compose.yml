@@ -1,11 +1,13 @@
 services:
   dochub:
     image: backend-dochub
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    environment:
-      - PORT=5000
+    env_file:
+      - /server/.env
   postgres:
     image: postgres
     restart: always

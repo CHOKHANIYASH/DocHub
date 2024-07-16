@@ -1,0 +1,28 @@
+# Download the latest version of Node.js image
+FROM public.ecr.aws/lambda/nodejs:18
+
+ENV LAMBDA_TASK_ROOT=/var/task
+
+# Set the working directory within the container
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# Copy package.json to the container
+COPY ./server/package.json .
+
+# Install dependencies
+RUN npm install
+
+# Copy the Prisma schema files
+COPY ./server/prisma ./prisma
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy the rest of the application files
+COPY ./server .
+
+# Expose port 5000
+EXPOSE 5000
+
+# Command to run the application
+CMD ["./src/app.handler"]
