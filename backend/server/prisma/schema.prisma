@@ -16,20 +16,20 @@ datasource db {
 
 
 model Comment{
-  id String @id 
+  id String @id @default(uuid())  
   comment String
   doc Docs @relation(fields:[docId],references: [id])
   docId String
 } 
 
 model ImageUrl{
-  id String @id
+  id String @id @default(uuid())
   doc Docs @relation( fields:[docId],references:[id])
   docId String
   imageUrl String
 }
 model Docs{
-  id String @id 
+  id String @id @default(uuid())
   createdAt DateTime @default(now())
   documentUrl String?
   document Json?
