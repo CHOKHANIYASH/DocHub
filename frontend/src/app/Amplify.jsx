@@ -10,18 +10,18 @@ import { toast } from "react-toastify";
 // console.log("awsExports", awsExports);
 Amplify.configure({ ...awsExports, ssr: true });
 export default function AmplifyConfig() {
-  useEffect(() => {
-    const unsubscribe = Hub.listen("auth", ({ payload }) => {
-      console.log("A new auth event has happened: ", payload);
-      switch (payload.event) {
-        case "customOAuthState":
-          if (payload.data === "SignUp") {
-            console.log("Sign up with custom state");
-          }
-          break;
-      }
-    });
-    return unsubscribe;
-  }, []);
+  // useEffect(() => {
+  //   const unsubscribe = Hub.listen("auth", ({ payload }) => {
+  //     console.log("A new auth event has happened: ", payload);
+  //     switch (payload.event) {
+  //       case "customOAuthState":
+  //         if (payload.data === "SignUp") {
+  //           console.log("Sign up with custom state");
+  //         }
+  //         break;
+  //     }
+  //   });
+  //   return unsubscribe;
+  // }, []);
   return null;
 }
