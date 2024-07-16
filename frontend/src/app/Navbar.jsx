@@ -75,13 +75,13 @@ function Navbar({ className }) {
             </Link>
           )}
 
-          <Link href={"/contact"}>
+          {/* <Link href={"/contact"}>
             <MenuItem
               setActive={setActive}
               active={active}
               item="AI"
             ></MenuItem>
-          </Link>
+          </Link> */}
         </Menu>
       </div>
       <ToastContainer autoClose={2000} />
