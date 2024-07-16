@@ -1,8 +1,8 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "resourceNameTruncated": "dochub5019a7f8",
-    "userPoolName": "dochub5019a7f8_userpool_5019a7f8",
+    "resourceNameTruncated": "dochubd78e5597",
+    "userPoolName": "dochubd78e5597_userpool_d78e5597",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -32,22 +32,16 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "dochub5019a7f8_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "dochubd78e5597_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "5019a7f8",
-    "resourceName": "dochub5019a7f85019a7f8",
+    "sharedId": "d78e5597",
+    "resourceName": "dochubd78e5597d78e5597",
     "authSelections": "userPoolOnly",
     "useDefault": "manual",
     "userPoolGroups": false,
     "adminQueries": false,
     "triggers": {},
-    "hostedUI": true,
-    "hostedUIDomainName": "dochub5019a7f8-5019a7f8",
-    "authProvidersUserPool": [
-      "Google"
-    ],
-    "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"sub\"}}]",
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3000/oauth/response/\"],\"LogoutURLs\":[\"http://localhost:3000/login/\"]}",
+    "hostedUI": false,
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
