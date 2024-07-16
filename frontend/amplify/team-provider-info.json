@@ -10,6 +10,17 @@
       "StackName": "amplify-dochub-dev-1878c",
       "StackId": "arn:aws:cloudformation:ap-south-1:225542105072:stack/amplify-dochub-dev-1878c/82f57f10-43a0-11ef-a284-027e37b9b385",
       "AmplifyAppId": "d2cmc6yh2eyika"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d2cmc6yh2eyika",
+          "type": "cicd"
+        }
+      },
+      "auth": {
+        "dochub5019a7f85019a7f8": {}
+      }
     }
   }
 }
