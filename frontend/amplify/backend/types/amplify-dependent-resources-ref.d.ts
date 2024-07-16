@@ -1,6 +1,6 @@
 export type AmplifyDependentResourcesAttributes = {
   "auth": {
-    "dochubd78e5597d78e5597": {
+    "dochub694f0194694f0194": {
       "AppClientID": "string",
       "AppClientIDWeb": "string",
       "UserPoolArn": "string",

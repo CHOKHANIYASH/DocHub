@@ -1,8 +1,8 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "resourceNameTruncated": "dochubd78e5597",
-    "userPoolName": "dochubd78e5597_userpool_d78e5597",
+    "resourceNameTruncated": "dochub694f0194",
+    "userPoolName": "dochub694f0194_userpool_694f0194",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -32,10 +32,10 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "dochubd78e5597_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "dochub694f0194_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "d78e5597",
-    "resourceName": "dochubd78e5597d78e5597",
+    "sharedId": "694f0194",
+    "resourceName": "dochub694f0194694f0194",
     "authSelections": "userPoolOnly",
     "useDefault": "manual",
     "userPoolGroups": false,

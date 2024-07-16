@@ -190,7 +190,7 @@ export default function Signup() {
 
               <div className="bg-gradient-to-r from-transparent via-neutral-300  to-transparent my-8 h-[1px] w-full" />
             </form>
-            <div className="flex flex-col mb-8 space-y-4">
+            {/* <div className="flex flex-col mb-8 space-y-4">
               <button
                 className="relative flex items-center justify-start w-full h-10 px-4 space-x-2 font-medium text-black rounded-md group/btn shadow-input bg-gray-50"
                 type="submit"
@@ -203,7 +203,7 @@ export default function Signup() {
                 <span className="text-sm text-neutral-700">Google</span>
                 <BottomGradient />
               </button>
-            </div>
+            </div> */}
           </>
         ) : (
           <>
