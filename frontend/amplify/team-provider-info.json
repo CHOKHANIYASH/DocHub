@@ -1,26 +1,15 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-dochub-dev-c690e-authRole",
-      "UnauthRoleArn": "arn:aws:iam::225542105072:role/amplify-dochub-dev-c690e-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::225542105072:role/amplify-dochub-dev-c690e-authRole",
+      "AuthRoleName": "amplify-dochub-dev-1878c-authRole",
+      "UnauthRoleArn": "arn:aws:iam::225542105072:role/amplify-dochub-dev-1878c-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::225542105072:role/amplify-dochub-dev-1878c-authRole",
       "Region": "ap-south-1",
-      "DeploymentBucketName": "amplify-dochub-dev-c690e-deployment",
-      "UnauthRoleName": "amplify-dochub-dev-c690e-unauthRole",
-      "StackName": "amplify-dochub-dev-c690e",
-      "StackId": "arn:aws:cloudformation:ap-south-1:225542105072:stack/amplify-dochub-dev-c690e/c72b2560-3589-11ef-a431-060d5ecc6f06",
-      "AmplifyAppId": "d1cvujm0v5afk9"
-    },
-    "categories": {
-      "hosting": {
-        "amplifyhosting": {
-          "appId": "d1cvujm0v5afk9",
-          "type": "cicd"
-        }
-      },
-      "auth": {
-        "dochube8394fb6e8394fb6": {}
-      }
+      "DeploymentBucketName": "amplify-dochub-dev-1878c-deployment",
+      "UnauthRoleName": "amplify-dochub-dev-1878c-unauthRole",
+      "StackName": "amplify-dochub-dev-1878c",
+      "StackId": "arn:aws:cloudformation:ap-south-1:225542105072:stack/amplify-dochub-dev-1878c/82f57f10-43a0-11ef-a284-027e37b9b385",
+      "AmplifyAppId": "d2cmc6yh2eyika"
     }
   }
 }
