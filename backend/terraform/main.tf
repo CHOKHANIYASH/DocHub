@@ -66,3 +66,44 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" { // IAM role policy att
   role       = aws_iam_role.dochub_lambda_role.name
   policy_arn = aws_iam_policy.dochub_lambda_logs_policy.arn
 }
+
+/*Api Gateway Begins*/
+resource "aws_api_gateway_rest_api" "dochub_api" { // API gateway creation
+    name="dochub_api"
+}
+resource "aws_api_gateway_authorizer" "dochub_authorizer" {//API gateway authorizer
+    name = "dochub_authorizer"
+    type = "COGNITO_USER_POOLS"
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    provider_arns = ["arn:aws:cognito-idp:ap-south-1:225542105072:userpool/ap-south-1_Y2pDakwg5"]
+      identity_source = "method.request.header.access_token"
+}
+resource "aws_api_gateway_resource" "dochub_user" { // /user resource
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    parent_id   = aws_api_gateway_rest_api.dochub_api.root_resource_id
+    path_part   = "user"
+}
+resource "aws_api_gateway_resource" "dochub_docs" { // /docs resource
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    parent_id   = aws_api_gateway_rest_api.dochub_api.root_resource_id
+    path_part   = "docs"
+}
+resource "aws_api_gateway_resource" "dochub_signup" { // /user/signup resource
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    parent_id   = aws_api_gateway_resource.dochub_user.id
+    path_part   = "signup"
+}
+resource "aws_api_gateway_method" "dochub_signup" { // /user/signup method
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id =aws_api_gateway_resource.dochub_signup.id
+  http_method = "POST"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "lambda_integration_signup" { // /user/signup lambda integration
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_signup.id
+  http_method = aws_api_gateway_method.dochub_signup.http_method
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = aws_lambda_function.dochub_server.invoke_arn
+}
