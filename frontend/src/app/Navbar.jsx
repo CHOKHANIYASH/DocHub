@@ -10,7 +10,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 function Navbar({ className }) {
   const [active, setActive] = useState(null);
   const isAuthenticated = useAppSelector((state) => state.isAuthenticated);
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState("");
   useEffect(() => {
     fetchAuthSession()
       .then((session) => {
