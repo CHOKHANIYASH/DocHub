@@ -76,7 +76,7 @@ resource "aws_api_gateway_authorizer" "dochub_authorizer" {//API gateway authori
     type = "COGNITO_USER_POOLS"
     rest_api_id = aws_api_gateway_rest_api.dochub_api.id
     provider_arns = ["arn:aws:cognito-idp:ap-south-1:225542105072:userpool/ap-south-1_Y2pDakwg5"]
-      identity_source = "method.request.header.access_token"
+    identity_source = "method.request.header.access_token"
 }
 resource "aws_api_gateway_resource" "dochub_user" { // /user resource
     rest_api_id = aws_api_gateway_rest_api.dochub_api.id
@@ -106,4 +106,31 @@ resource "aws_api_gateway_integration" "lambda_integration_signup" { // /user/si
   integration_http_method = "POST"
   type = "AWS_PROXY"
   uri = aws_lambda_function.dochub_server.invoke_arn
+}
+resource "aws_api_gateway_resource" "dochub_user_proxy" { // /user/{proxy+} resource
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    parent_id   = aws_api_gateway_resource.dochub_user.id
+    path_part   = "{proxy+}"
+    depends_on = [
+    aws_api_gateway_resource.dochub_signup,
+  ]
+}
+resource "aws_api_gateway_method" "dochub_user_proxy" {
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    resource_id = aws_api_gateway_resource.dochub_user_proxy.id
+    http_method = "ANY"
+    authorization = "COGNITO_USER_POOLS"
+    authorizer_id = aws_api_gateway_authorizer.dochub_authorizer.id
+    authorization_scopes = ["aws.cognito.signin.user.admin"]
+#      request_parameters = {
+#     "method.request.path.proxy" = true
+#   }
+}
+resource "aws_api_gateway_integration" "lambda_integration_user_proxy" {
+   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+    resource_id = aws_api_gateway_resource.dochub_user_proxy.id
+    http_method = aws_api_gateway_method.dochub_user_proxy.http_method
+    integration_http_method = "POST"
+    type = "AWS_PROXY"
+    uri = aws_lambda_function.dochub_server.invoke_arn
 }
