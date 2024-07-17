@@ -115,7 +115,7 @@ resource "aws_api_gateway_resource" "dochub_user_proxy" { // /user/{proxy+} reso
     aws_api_gateway_resource.dochub_signup,
   ]
 }
-resource "aws_api_gateway_method" "dochub_user_proxy" {
+resource "aws_api_gateway_method" "dochub_user_proxy" { // /user/{proxy+} method
     rest_api_id = aws_api_gateway_rest_api.dochub_api.id
     resource_id = aws_api_gateway_resource.dochub_user_proxy.id
     http_method = "ANY"
@@ -126,11 +126,35 @@ resource "aws_api_gateway_method" "dochub_user_proxy" {
 #     "method.request.path.proxy" = true
 #   }
 }
-resource "aws_api_gateway_integration" "lambda_integration_user_proxy" {
-   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+resource "aws_api_gateway_integration" "lambda_integration_user_proxy" { // /user/{proxy+} lambda integration
+    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
     resource_id = aws_api_gateway_resource.dochub_user_proxy.id
     http_method = aws_api_gateway_method.dochub_user_proxy.http_method
     integration_http_method = "POST"
     type = "AWS_PROXY"
     uri = aws_lambda_function.dochub_server.invoke_arn
 }
+
+resource "aws_lambda_permission" "apigw_invoke_permission" {
+  statement_id = "AllowAPIGatewayInvoke"
+  action = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.dochub_server.function_name
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.dochub_api.execution_arn}/*/*/*"
+}
+
+resource "aws_api_gateway_deployment" "dochub_deployment" {
+  depends_on = [ aws_api_gateway_integration.lambda_integration_signup, aws_api_gateway_integration.lambda_integration_user_proxy ]
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  stage_name = "v1"
+#   triggers = {
+#     redeployment = sha1(jsonencode([aws]))
+#   }
+    lifecycle {
+      create_before_destroy = true
+    }
+}
+output "api_url" { // API Gateway URL output
+  value = aws_api_gateway_deployment.dochub_deployment.invoke_url
+}
+// API Gateway ends
