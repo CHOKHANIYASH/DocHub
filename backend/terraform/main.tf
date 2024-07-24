@@ -223,6 +223,13 @@ resource "aws_api_gateway_integration" "lambda_integration_docs_user_proxy" { //
   uri = aws_lambda_function.dochub_server.invoke_arn  
 }
 
+module "cors" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_rest_api.dochub_api.root_resource_id
+}
+
 resource "aws_lambda_permission" "apigw_invoke_permission" { // lambda api gateway invoke permission  
   statement_id = "AllowAPIGatewayInvoke"
   action = "lambda:InvokeFunction"
