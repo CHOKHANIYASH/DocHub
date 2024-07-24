@@ -157,7 +157,35 @@ resource "aws_api_gateway_integration" "lambda_integration_docs_proxy" { // /doc
     uri = aws_lambda_function.dochub_server.invoke_arn
 }
 
-resource "aws_lambda_permission" "apigw_invoke_permission" {
+resource "aws_api_gateway_resource" "dochub_docs_user" { // /docs/user resource
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  parent_id = aws_api_gateway_resource.dochub_docs.id
+  path_part = "user"
+}
+resource "aws_api_gateway_resource" "dochub_docs_user_proxy" { // /docs/user/{proxy+} reource
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  parent_id = aws_api_gateway_resource.dochub_docs_user.id
+  path_part = "{proxy+}"
+}
+resource "aws_api_gateway_method" "dochub_docs_user_proxy" {// /docs/user/{proxy+} method
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_user_proxy.id
+  http_method = "ANY"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.dochub_authorizer.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
+}
+resource "aws_api_gateway_integration" "lambda_integration_docs_user_proxy" { // /docs/user/{proxy+} lambda integrarion
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_user_proxy.id
+  http_method = aws_api_gateway_method.dochub_docs_user_proxy.http_method
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = aws_lambda_function.dochub_server.invoke_arn  
+}
+
+
+resource "aws_lambda_permission" "apigw_invoke_permission" { // lambda api gateway invoke permission  
   statement_id = "AllowAPIGatewayInvoke"
   action = "lambda:InvokeFunction"
   function_name = aws_lambda_function.dochub_server.function_name
@@ -165,7 +193,7 @@ resource "aws_lambda_permission" "apigw_invoke_permission" {
   source_arn = "${aws_api_gateway_rest_api.dochub_api.execution_arn}/*/*/*"
 }
 
-resource "aws_api_gateway_deployment" "dochub_deployment" {
+resource "aws_api_gateway_deployment" "dochub_deployment" { // api gateway deployment
   depends_on = [ aws_api_gateway_integration.lambda_integration_signup, aws_api_gateway_integration.lambda_integration_user_proxy ]
   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
   stage_name = "v1"
