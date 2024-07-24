@@ -154,18 +154,18 @@ resource "aws_api_gateway_integration" "lambda_integration_docs_docId" { // /doc
   type = "AWS_PROXY"
   uri = aws_lambda_function.dochub_server.invoke_arn  
 }
-resource "aws_api_gateway_resource" "dochub_docs_docId_update" { // /docs/{docId} resource
+resource "aws_api_gateway_resource" "dochub_docs_docId_update" { // /docs/{docId}/update resource
   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
   parent_id = aws_api_gateway_resource.dochub_docs_docId.id
   path_part = "update"
 }
-resource "aws_api_gateway_method" "dochub_docs_docId_update" {// /docs/{docId} method
+resource "aws_api_gateway_method" "dochub_docs_docId_update" {// /docs/{docId}/update method
   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
   resource_id = aws_api_gateway_resource.dochub_docs_docId_update.id
   http_method = "POST"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "lambda_integration_docs_docId_update" { // /docs/{docId} lambda integrarion
+resource "aws_api_gateway_integration" "lambda_integration_docs_docId_update" { // /docs/{docId}/update lambda integrarion
   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
   resource_id = aws_api_gateway_resource.dochub_docs_docId_update.id
   http_method = aws_api_gateway_method.dochub_docs_docId_update.http_method
@@ -178,6 +178,22 @@ resource "aws_api_gateway_resource" "dochub_docs_docId_proxy" { // /docs/{docId}
   rest_api_id = aws_api_gateway_rest_api.dochub_api.id
   parent_id = aws_api_gateway_resource.dochub_docs_docId.id
   path_part = "{proxy+}"
+}
+resource "aws_api_gateway_method" "dochub_docs_docId_proxy" {// /docs/{docId}/{proxy+} method
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_docId_proxy.id
+  http_method = "ANY"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.dochub_authorizer.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
+}
+resource "aws_api_gateway_integration" "lambda_integration_docs_docId_proxy" { // /docs/{docId}/{proxy+} lambda integrarion
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_docId_proxy.id
+  http_method = aws_api_gateway_method.dochub_docs_docId_proxy.http_method
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = aws_lambda_function.dochub_server.invoke_arn  
 }
 
 resource "aws_api_gateway_resource" "dochub_docs_user" { // /docs/user resource
