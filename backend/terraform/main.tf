@@ -134,27 +134,31 @@ resource "aws_api_gateway_integration" "lambda_integration_user_proxy" { // /use
     type = "AWS_PROXY"
     uri = aws_lambda_function.dochub_server.invoke_arn
 }
-resource "aws_api_gateway_resource" "dochub_docs_proxy" { // /docs/{proxy+} resource
-    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
-    parent_id   = aws_api_gateway_resource.dochub_docs.id
-    path_part   = "{proxy+}"
+
+resource "aws_api_gateway_resource" "dochub_docs_docId" { // /docs/{docId} resource
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  parent_id = aws_api_gateway_resource.dochub_docs.id
+  path_part = "{docId}"
 }
-resource "aws_api_gateway_method" "dochub_docs_proxy" { // /docs/{proxy+} method
-    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
-    resource_id = aws_api_gateway_resource.dochub_docs_proxy.id
-    http_method = "ANY"
-    authorization = "NONE"
-#      request_parameters = {
-#     "method.request.path.proxy" = true
-#   }
+resource "aws_api_gateway_method" "dochub_docs_docId" {// /docs/{docId} method
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_docId.id
+  http_method = "GET"
+  authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "lambda_integration_docs_proxy" { // /docs/{proxy+} lambda integration
-    rest_api_id = aws_api_gateway_rest_api.dochub_api.id
-    resource_id = aws_api_gateway_resource.dochub_docs_proxy.id
-    http_method = aws_api_gateway_method.dochub_docs_proxy.http_method
-    integration_http_method = "POST"
-    type = "AWS_PROXY"
-    uri = aws_lambda_function.dochub_server.invoke_arn
+resource "aws_api_gateway_integration" "lambda_integration_docs_docId" { // /docs/{docId} lambda integrarion
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  resource_id = aws_api_gateway_resource.dochub_docs_docId.id
+  http_method = aws_api_gateway_method.dochub_docs_docId.http_method
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = aws_lambda_function.dochub_server.invoke_arn  
+}
+
+resource "aws_api_gateway_resource" "dochub_docs_docId_proxy" { // /docs/{docId}/{proxy+} resource
+  rest_api_id = aws_api_gateway_rest_api.dochub_api.id
+  parent_id = aws_api_gateway_resource.dochub_docs_docId.id
+  path_part = "{proxy+}"
 }
 
 resource "aws_api_gateway_resource" "dochub_docs_user" { // /docs/user resource
@@ -183,7 +187,6 @@ resource "aws_api_gateway_integration" "lambda_integration_docs_user_proxy" { //
   type = "AWS_PROXY"
   uri = aws_lambda_function.dochub_server.invoke_arn  
 }
-
 
 resource "aws_lambda_permission" "apigw_invoke_permission" { // lambda api gateway invoke permission  
   statement_id = "AllowAPIGatewayInvoke"
