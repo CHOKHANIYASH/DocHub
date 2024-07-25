@@ -222,12 +222,72 @@ resource "aws_api_gateway_integration" "lambda_integration_docs_user_proxy" { //
   type = "AWS_PROXY"
   uri = aws_lambda_function.dochub_server.invoke_arn  
 }
-
-module "cors" {
+//Adding cors to all routes in api-gateway
+module "cors_docId" {
   source = "squidfunk/api-gateway-enable-cors/aws"
   version = "0.3.3"
   api_id          = aws_api_gateway_rest_api.dochub_api.id
-  api_resource_id = aws_api_gateway_rest_api.dochub_api.root_resource_id
+  api_resource_id = aws_api_gateway_resource.dochub_docs_docId.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
+}
+module "cors_docId_proxy" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_resource.dochub_docs_docId_proxy.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
+}
+module "cors_docId_update" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_resource.dochub_docs_docId_update.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
+}
+module "cors_docs_user_proxy" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_resource.dochub_docs_user_proxy.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
+}
+module "cors_user_proxy" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_resource.dochub_user_proxy.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
+}
+module "cors_user_signup" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.3"
+  api_id          = aws_api_gateway_rest_api.dochub_api.id
+  api_resource_id = aws_api_gateway_resource.dochub_signup.id
+  allow_headers = ["Authorization",
+  "Content-Type",
+  "X-Amz-Date",
+  "X-Amz-Security-Token",
+  "X-Api-Key","access_token"]
 }
 
 resource "aws_lambda_permission" "apigw_invoke_permission" { // lambda api gateway invoke permission  
