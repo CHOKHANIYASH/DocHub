@@ -89,7 +89,7 @@ export default function Document() {
         console.log(err);
       });
   }, []);
-  console.log("Document Component");
+  // console.log("Document Component");
   return (
     <>
       <Tiptap
