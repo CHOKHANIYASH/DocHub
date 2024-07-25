@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
-const { Prisma } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
-const { response } = require("express");
+const { CognitoJwtVerifier } = require("aws-jwt-verify");
 const prisma = new PrismaClient();
 const signup = async ({
   userId,
@@ -90,5 +89,21 @@ const deleteUser = async ({ userId }) => {
     },
   };
 };
+const userVerifier = async ({ accessToken }) => {
+  const verifier = CognitoJwtVerifier.create({
+    userPoolId: process.env.COGNITO_USER_POOL_ID,
+    tokenUse: "access",
+    clientId: process.env.COGNITO_USER_POOL_CLIENT_ID,
+  });
+  try {
+    const payload = await verifier.verify(
+      accessToken // the JWT as string
+    );
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
 
-module.exports = { signup, allUsers, updateUser, deleteUser };
+module.exports = { signup, allUsers, updateUser, deleteUser, userVerifier };

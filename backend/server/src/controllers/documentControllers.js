@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { AppError } = require("../middleware/middleware");
+const { userVerifier } = require("./userController");
 const { v4: uuid } = require("uuid");
 const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
@@ -87,6 +88,8 @@ const isAuthorizedToView = async ({ docId, userId, email, accessToken }) => {
     document.accessType === "publicViewOnly"
   )
     return true;
+  const verifiedUser = await userVerifier({ accessToken });
+  if (!verifiedUser) return false;
   const decoded = jwt.decode(accessToken, { complete: true });
   if (!decoded) return false;
   const { sub } = decoded.payload;
@@ -114,6 +117,8 @@ const isAuthorizedToUpdate = async ({ docId, userId, email, accessToken }) => {
     },
   });
   if (document.accessType === "public") return true;
+  const verifiedUser = await userVerifier({ accessToken });
+  if (!verifiedUser) return false;
   const decoded = jwt.decode(accessToken, { complete: true });
   if (!decoded) return false;
   const { sub } = decoded.payload;
