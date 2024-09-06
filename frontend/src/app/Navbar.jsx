@@ -6,15 +6,24 @@ import { cn } from "@/utils/cn";
 import Link from "next/link";
 import { ToastContainer } from "react-toastify";
 import { useAppSelector } from "@/redux/hooks/index";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import { usePathname } from "next/navigation";
+
 function Navbar({ className }) {
   const [active, setActive] = useState(null);
   const isAuthenticated = useAppSelector((state) => state.isAuthenticated);
   const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
+  const path = usePathname();
   useEffect(() => {
     fetchAuthSession()
       .then((session) => {
         setUserId(session.userSub);
+        if (session.userSub) {
+          getCurrentUser().then((user) => {
+            setUsername(user.username);
+          });
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -22,7 +31,7 @@ function Navbar({ className }) {
   });
   return (
     <>
-      <div className={cn("inset-x-0  mx-auto max-md:m-4  ", className)}>
+      <div className={cn("inset-x-0 ", className)}>
         <Menu setActive={setActive}>
           <Link href={"/"}>
             <MenuItem
@@ -74,7 +83,6 @@ function Navbar({ className }) {
               ></MenuItem>
             </Link>
           )}
-
           {/* <Link href={"/contact"}>
             <MenuItem
               setActive={setActive}
@@ -83,6 +91,13 @@ function Navbar({ className }) {
             ></MenuItem>
           </Link> */}
         </Menu>
+        {username && path !== "/" && !path.startsWith("/docs/") && (
+          <div className="flex justify-end ">
+            <p className="inline mr-4 text-lg font-bold text-gray-500">
+              {username}
+            </p>
+          </div>
+        )}
       </div>
       <ToastContainer autoClose={2000} />
     </>
