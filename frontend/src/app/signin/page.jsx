@@ -83,6 +83,18 @@ export default function Login() {
         ) : (
           <Loader type="spinner-circle" bgColor={"#000000"} size={50} />
         )}
+        {
+          <button
+            className="relative block h-10 p-2 mt-2 ml-auto font-medium text-white bg-blue-500 rounded-full bg-gradient-to-br group/btn"
+            onClick={(e) => {
+              setUsername("testUser");
+              setPassword("Test#123");
+            }}
+            type="submit"
+          >
+            Guest
+          </button>
+        }
         <div className="bg-gradient-to-r from-transparent via-neutral-300  to-transparent my-8 h-[1px] w-full" />
       </form>
       {/* <div className="flex flex-col mb-8 space-y-4">
