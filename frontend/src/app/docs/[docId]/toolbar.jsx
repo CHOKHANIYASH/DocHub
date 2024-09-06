@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+
 import {
   faStrikethrough,
   faBold,
@@ -15,12 +17,21 @@ import {
   faCode,
   faImage,
   faSave,
+  faCopy,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { toast } from "react-toastify";
 const Toolbar = ({ editor, content, userId, accessToken, email }) => {
   const url = process.env.NEXT_PUBLIC_SERVER_URL;
+  const copyTextToClipboard = async (text) => {
+    if ("clipboard" in navigator) {
+      await navigator.clipboard.writeText(text);
+      toast.success("Url copied", {
+        toastId: "uniqueToastDocs",
+      });
+    }
+  };
   const handleSave = () => {
     const docId = window.location.pathname.split("/")[2];
     const json = editor.getJSON();
@@ -189,7 +200,17 @@ const Toolbar = ({ editor, content, userId, accessToken, email }) => {
             "text-sky-400 hover:bg-sky-700 hover:text-white p-1 hover:rounded-lg"
           }
         >
+          <p className="inline font-semibold">Save</p>{" "}
           <FontAwesomeIcon icon={faSave} className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => copyTextToClipboard(window.location.href)}
+          className={
+            "text-sky-400 hover:bg-sky-700 hover:text-white p-1 hover:rounded-lg"
+          }
+        >
+          <p className="inline font-semibold">CopyUrl</p>{" "}
+          <FontAwesomeIcon icon={faCopy} className="w-5 h-5" />
         </button>
       </div>
     </div>
