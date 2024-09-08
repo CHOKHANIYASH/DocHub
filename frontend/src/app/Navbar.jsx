@@ -12,18 +12,13 @@ import { usePathname } from "next/navigation";
 function Navbar({ className }) {
   const [active, setActive] = useState(null);
   const isAuthenticated = useAppSelector((state) => state.isAuthenticated);
+  const username = useAppSelector((state) => state.username);
   const [userId, setUserId] = useState("");
-  const [username, setUsername] = useState("");
   const path = usePathname();
   useEffect(() => {
     fetchAuthSession()
       .then((session) => {
         setUserId(session.userSub);
-        if (session.userSub) {
-          getCurrentUser().then((user) => {
-            setUsername(user.username);
-          });
-        }
       })
       .catch((err) => {
         console.log(err);

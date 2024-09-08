@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { signIn, signInWithRedirect, getCurrentUser } from "@aws-amplify/auth";
 import "aws-amplify/auth/enable-oauth-listener";
 import { setIsAuthenticated } from "@/redux/slices/isAuthenticatedSlice";
+import { setUsername as setUsernameDispatch } from "@/redux/slices/usernameSlice";
 import { useAppDispatch } from "@/redux/hooks/index";
 
 export default function Login() {
@@ -40,6 +41,7 @@ export default function Login() {
       const user = await getCurrentUser();
       setLoading(false);
       dispatch(setIsAuthenticated(true));
+      dispatch(setUsernameDispatch(user.username));
       toast.success("Login successful", { toastId: "uniqueToastLogin" });
       router.push(`/dashboard/${user.userId}`);
     } catch (err) {
